@@ -7,7 +7,7 @@ fetch('data.json')
       const tr = document.createElement("tr");
 
       const statusClass = person.status === "済" ? "paid" : "unpaid";
-      const statusText = person.status === "済" ? "✅" : "❌";
+      const statusText = person.status === "済" ? "✅" : "未";
 
       tr.innerHTML = `
         <td>${person.name}</td>
