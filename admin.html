@@ -101,8 +101,6 @@
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbzwxqXCzosK3jNbPireh1jv0nJQ-eCscriMT_PZKgQ-smQwF9ApPaFziWwPHM0wovqU/exec"; // ← Google Apps Script の URL をここに入れる
-
 const formArea = document.getElementById("form-area");
 const previewBody = document.getElementById("preview-body");
 let data = [];
@@ -114,16 +112,16 @@ function renderForm(data) {
     row.className = "person-row";
 
     const label = document.createElement("label");
-    label.textContent = person.名前;
+    label.textContent = person.name;
 
     const select = document.createElement("select");
     select.innerHTML = `<option value="未">未</option><option value="済">済</option>`;
-    select.value = person.状況;
+    select.value = person.status;
     select.dataset.index = index;
 
     const date = document.createElement("input");
     date.type = "date";
-    date.value = person.日付 || "";
+    date.value = person.date || "";
     date.dataset.index = index;
 
     row.appendChild(label);
@@ -138,9 +136,9 @@ function renderPreview(data) {
   data.forEach(person => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${person.名前}</td>
-      <td class="${person.状況 === '済' ? 'paid' : 'unpaid'}">${person.状況}</td>
-      <td>${person.日付 || "―"}</td>
+      <td>${person.name}</td>
+      <td class="${person.status === '済' ? 'paid' : 'unpaid'}">${person.status}</td>
+      <td>${person.date || "―"}</td>
     `;
     previewBody.appendChild(row);
   });
@@ -148,14 +146,14 @@ function renderPreview(data) {
 
 function sortByStatus(data) {
   return data.slice().sort((a, b) => {
-    if (a.状況 === "未" && b.状況 === "済") return -1;
-    if (a.状況 === "済" && b.状況 === "未") return 1;
+    if (a.status === "未" && b.status === "済") return -1;
+    if (a.status === "済" && b.status === "未") return 1;
     return 0;
   });
 }
 
 // 初期読み込み
-fetch(SHEET_URL)
+fetch('data.json')
   .then(res => res.json())
   .then(json => {
     data = sortByStatus(json);
@@ -163,34 +161,25 @@ fetch(SHEET_URL)
     renderPreview(data);
   });
 
-// 保存ボタン押下時
+// 保存（プレビュー反映）
 document.getElementById("save-btn").addEventListener("click", () => {
   const selects = document.querySelectorAll("select");
   const dates = document.querySelectorAll("input[type='date']");
 
   selects.forEach(select => {
-    data[select.dataset.index].状況 = select.value;
+    data[select.dataset.index].status = select.value;
   });
 
   dates.forEach(input => {
-    data[input.dataset.index].日付 = input.value;
+    data[input.dataset.index].date = input.value;
   });
 
   data = sortByStatus(data);
+  renderForm(data);
+  renderPreview(data);
 
-  // スプレッドシートに保存
-  fetch(SHEET_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-    .then(res => res.text())
-    .then(msg => {
-      alert("保存しました！");
-      renderForm(data);
-      renderPreview(data);
-    })
-    .catch(err => alert("保存失敗: " + err));
+  console.log("最新状態（data.jsonに手動保存してください）:");
+  console.log(JSON.stringify(data, null, 2));
 });
 </script>
 
