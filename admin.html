@@ -98,22 +98,8 @@
 </div>
 
 <script>
-const participants = [
-  "けんぢ", "尾山", "三浦", "松村", "えり", "ハットリ", "小幡", "石黒", "田嶋",
-  "箭内", "渋田", "ごんだい", "Mark", "らっき", "神谷", "石井H", "シャルマ", "北島", "松岡"
-];
-
 const formArea = document.getElementById("form-area");
 const previewBody = document.getElementById("preview-body");
-
-function loadData() {
-  const saved = localStorage.getItem("paymentData");
-  return saved ? JSON.parse(saved) : participants.map(name => ({ name, status: "未", date: "" }));
-}
-
-function saveData(data) {
-  localStorage.setItem("paymentData", JSON.stringify(data));
-}
 
 function renderForm(data) {
   formArea.innerHTML = "";
@@ -131,7 +117,7 @@ function renderForm(data) {
 
     const date = document.createElement("input");
     date.type = "date";
-    date.value = person.date;
+    date.value = person.date || "";
     date.dataset.index = index;
 
     row.appendChild(label);
@@ -154,9 +140,15 @@ function renderPreview(data) {
   });
 }
 
-const data = loadData();
-renderForm(data);
-renderPreview(data);
+let data = [];
+
+fetch('data.json')
+  .then(res => res.json())
+  .then(json => {
+    data = json;
+    renderForm(data);
+    renderPreview(data);
+  });
 
 document.getElementById("save-btn").addEventListener("click", () => {
   const selects = document.querySelectorAll("select");
@@ -170,10 +162,6 @@ document.getElementById("save-btn").addEventListener("click", () => {
     data[input.dataset.index].date = input.value;
   });
 
-  saveData(data);
   renderPreview(data);
 });
 </script>
-
-</body>
-</html>
