@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理者用：ぞえちゃん集金</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      max-width: 600px;
+      margin: auto;
+      background: #f7f7f7;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .person-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      background: white;
+      padding: 0.6rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .person-row label {
+      flex: 1;
+    }
+
+    .person-row select,
+    .person-row input[type="date"] {
+      margin-left: 0.5rem;
+      font-size: 14px;
+      padding: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    #preview {
+      margin-top: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .paid {
+      color: green;
+    }
+
+    .unpaid {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<h1>5/24(Sat) ぞえちゃんプレゼント集金 編集</h1>
+
+<div id="form-area"></div>
+
+<button id="save-btn">保存（プレビューに反映）</button>
+
+<div id="preview">
+  <h2>支払状況プレビュー</h2>
+  <table>
+    <thead>
+      <tr><th>名前</th><th>状況</th><th>日付</th></tr>
+    </thead>
+    <tbody id="preview-body"></tbody>
+  </table>
+</div>
+
+<script>
+const participants = [
+  "けんぢ", "尾山", "三浦", "松村", "えり", "ハットリ", "小幡", "石黒", "田嶋",
+  "箭内", "渋田", "ごんだい", "Mark", "らっき", "神谷", "石井H", "シャルマ", "北島", "松岡"
+];
+
+const formArea = document.getElementById("form-area");
+const previewBody = document.getElementById("preview-body");
+
+function loadData() {
+  const saved = localStorage.getItem("paymentData");
+  return saved ? JSON.parse(saved) : participants.map(name => ({ name, status: "未", date: "" }));
+}
+
+function saveData(data) {
+  localStorage.setItem("paymentData", JSON.stringify(data));
+}
+
+function renderForm(data) {
+  formArea.innerHTML = "";
+  data.forEach((person, index) => {
+    const row = document.createElement("div");
+    row.className = "person-row";
+
+    const label = document.createElement("label");
+    label.textContent = person.name;
+
+    const select = document.createElement("select");
+    select.innerHTML = `<option value="未">未</option><option value="済">済</option>`;
+    select.value = person.status;
+    select.dataset.index = index;
+
+    const date = document.createElement("input");
+    date.type = "date";
+    date.value = person.date;
+    date.dataset.index = index;
+
+    row.appendChild(label);
+    row.appendChild(select);
+    row.appendChild(date);
+    formArea.appendChild(row);
+  });
+}
+
+function renderPreview(data) {
+  previewBody.innerHTML = "";
+  data.forEach(person => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${person.name}</td>
+      <td class="${person.status === '済' ? 'paid' : 'unpaid'}">${person.status}</td>
+      <td>${person.date || "―"}</td>
+    `;
+    previewBody.appendChild(row);
+  });
+}
+
+const data = loadData();
+renderForm(data);
+renderPreview(data);
+
+document.getElementById("save-btn").addEventListener("click", () => {
+  const selects = document.querySelectorAll("select");
+  const dates = document.querySelectorAll("input[type='date']");
+
+  selects.forEach(select => {
+    data[select.dataset.index].status = select.value;
+  });
+
+  dates.forEach(input => {
+    data[input.dataset.index].date = input.value;
+  });
+
+  saveData(data);
+  renderPreview(data);
+});
+</script>
+
+</body>
+</html>
