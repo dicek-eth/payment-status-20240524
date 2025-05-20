@@ -1,27 +1,30 @@
-fetch('data.json')
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwR5OEL2zqPHoMVkDM5BP8t0yew6Z04AoqvMD57lePEWr70HgDaIbrLndVRn13Z9I0J2w/exec"; // ← ここに Apps Script の URL を入れてください
+
+fetch(SHEET_URL)
   .then(res => res.json())
   .then(data => {
     const tbody = document.querySelector("#payment-table tbody");
 
-    // 「未」→「済」順に並べ替え
+    // 未→済 の順に並び替え
     data.sort((a, b) => {
-      if (a.status === "未" && b.status === "済") return -1;
-      if (a.status === "済" && b.status === "未") return 1;
-      return 0; // 同じなら順序維持
+      if (a.状況 === "未" && b.状況 === "済") return -1;
+      if (a.状況 === "済" && b.状況 === "未") return 1;
+      return 0;
     });
 
     data.forEach(person => {
       const tr = document.createElement("tr");
-
-      const statusClass = person.status === "済" ? "paid" : "unpaid";
-      const statusText = person.status === "済" ? "✅" : "未";
+      tr.className = person.状況 === "済" ? "paid" : "unpaid";
 
       tr.innerHTML = `
-        <td>${person.name}</td>
-        <td class="status ${statusClass}">${statusText}</td>
-        <td>${person.date || "―"}</td>
+        <td>${person.名前}</td>
+        <td>${person.状況 === "済" ? "✅" : "未"}</td>
+        <td>${person.日付 || "―"}</td>
       `;
 
       tbody.appendChild(tr);
     });
+  })
+  .catch(err => {
+    console.error("スプレッドシートの読み込みに失敗しました:", err);
   });
