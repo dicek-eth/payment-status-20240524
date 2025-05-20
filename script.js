@@ -1,18 +1,28 @@
 fetch('data.json')
   .then(response => response.json())
   .then(data => {
-    const tbody = document.querySelector("#payment-table tbody");
+    const container = document.getElementById("cards-container");
 
     data.forEach(person => {
-      const tr = document.createElement("tr");
-      tr.className = person.status === "済" ? "paid" : "unpaid";
+      const card = document.createElement("div");
+      card.className = "card";
 
-      tr.innerHTML = `
-        <td>${person.name}</td>
-        <td>${person.status}</td>
-        <td>${person.date || "―"}</td>
-      `;
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = person.name;
 
-      tbody.appendChild(tr);
+      const status = document.createElement("div");
+      status.className = `status ${person.status === "済" ? "paid" : "unpaid"}`;
+      status.textContent = person.status === "済" ? "支払済み" : "未払い";
+
+      const date = document.createElement("div");
+      date.className = "date";
+      date.textContent = person.date ? `支払日: ${person.date}` : "";
+
+      card.appendChild(name);
+      card.appendChild(status);
+      if (person.date) card.appendChild(date);
+
+      container.appendChild(card);
     });
   });
