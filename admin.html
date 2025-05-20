@@ -101,7 +101,7 @@
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwR5OEL2zqPHoMVkDM5BP8t0yew6Z04AoqvMD57lePEWr70HgDaIbrLndVRn13Z9I0J2w/exec"; // ← Google Apps Script の URL をここに入れる
+const SHEET_URL = "YOUR_SCRIPT_URL_HERE"; // ← Google Apps Script の URL をここに入れる
 
 const formArea = document.getElementById("form-area");
 const previewBody = document.getElementById("preview-body");
@@ -165,4 +165,34 @@ fetch(SHEET_URL)
 
 // 保存ボタン押下時
 document.getElementById("save-btn").addEventListener("click", () => {
-  const selects = document.querySelectorAll
+  const selects = document.querySelectorAll("select");
+  const dates = document.querySelectorAll("input[type='date']");
+
+  selects.forEach(select => {
+    data[select.dataset.index].状況 = select.value;
+  });
+
+  dates.forEach(input => {
+    data[input.dataset.index].日付 = input.value;
+  });
+
+  data = sortByStatus(data);
+
+  // スプレッドシートに保存
+  fetch(SHEET_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+    .then(res => res.text())
+    .then(msg => {
+      alert("保存しました！");
+      renderForm(data);
+      renderPreview(data);
+    })
+    .catch(err => alert("保存失敗: " + err));
+});
+</script>
+
+</body>
+</html>
