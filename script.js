@@ -1,4 +1,4 @@
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxvxta3pCfO6bK2_XFI2emUJsVCDvv1Ss4XKEtCNzleP90Rft-Ck8cd-ulj6XT1WhnVjw/exec"; // ← ここに Apps Script の URL を入れてください
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxpS2FZcSiNyp60wzEAFwNNs57JJZJFCJTo1VPj3gq3MPqDvTzTwN1U6UJFY2TFwgg--A/exec"; // ← ここに Apps Script の URL を入れてください
 
 fetch(SHEET_URL)
   .then(res => res.json())
